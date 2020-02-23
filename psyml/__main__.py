@@ -31,7 +31,7 @@ def parse_args():
     )
     for command in [encrypt, save, nuke, decrypt, diff, refresh]:
         command.add_argument(
-            "file", type=argparse.FileType("w", encoding="UTF-8")
+            "file", type=argparse.FileType(encoding="UTF-8")
         )
     return parser.parse_args()
 
