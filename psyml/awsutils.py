@@ -20,7 +20,7 @@ def decrypt_with_psyml(name, encrypted):
 
 def encrypt_with_psyml(name, plaintext):
     return base64.b64encode(_kms.encrypt(
-        KeyId=PSYML_KEY_ALIAS,
+        KeyId=get_psyml_key_arn(),
         Plaintext=plaintext.encode(),
         EncryptionContext={
             'Client': 'psyml',

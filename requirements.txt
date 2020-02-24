@@ -1,0 +1,4 @@
+pyyaml
+boto3
+moto
+coverage
