@@ -52,6 +52,7 @@ class PSyml:
     def __repr__(self):
         return f"<PSyml: {self.path}>"
 
+    @property
     def aws_tags(self):
         if self.tags is None:
             return None
@@ -179,17 +180,20 @@ class SSMParameterStoreItem:
     def save(self):
         kwargs = {
             "Name": self.path,
-            "Description": self.data["description"],
-            "Value": self.data["value"],
-            "Type": self.data["type"],
+            "Description": self.data.description,
+            "Value": self.data.decrypted,
+            "Type": self.data.type_,
             "Overwrite": True,
-            "Tags": self.psyml.tags,
         }
-        if self.yml.aws_tags is not None:
-            kwargs["Tags"] = self.yml.aws_tags
-        if self.data["type"] == "SecureString":
+        if self.data.type_ == "SecureString":
             kwargs["KeyId"] = self.psyml.kmskey
         self.ssm.put_parameter(**kwargs)
+        if self.psyml.aws_tags is not None:
+            self.ssm.add_tags_to_resource(
+                ResourceType='Parameter',
+                ResourceId=self.path,
+                Tags=self.psyml.aws_tags
+            )
 
     def delete(self):
         self.ssm.delete_parameter(Name=self.path)
