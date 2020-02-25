@@ -75,16 +75,16 @@ commandline syntax looks like:
 
 * `encrypt`: encrypt a yml file with default kms key(`alias/psyml`).
 * `save`: save parameters into parameter store using specified KMS key.
-
 * `nuke`: remove all the parameter store entries specified in the yml file.
 * `decrypt`: decrypt a yml file and write output to stdout.
-* `diff`: compare parameters in parameter store with local version.
 * `refresh`: encrypt a yml file using the current `alias/psyml`.
 * `export`: export all variables bash-like so it can be sourced.
+
+* `diff`: compare parameters in parameter store with local version.
 * `sync`: update parameters in parameter store so it's in sync with yml.
 
 ## Known limitations
 
-* Some of the commands(`decrypt`/`nuke`/`diff`/`refresh`/`export`/`sync`) are not implemented yet.
-* parameter store type `StringList` is not supported yet(Frankly I see no point).
+* Some of the commands(`diff`/`sync`) are not implemented yet.
+* parameter store type `StringList` is not supported yet.
 * We are using the KMS service and please check [the KMS pricing page](https://aws.amazon.com/kms/pricing/) before continue.

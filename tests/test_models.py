@@ -155,17 +155,17 @@ class TestParameter(unittest.TestCase):
     def test_decrypted_value(self):
         param = copy.deepcopy(MINIMAL_PARAM)
         parameter = Parameter(param)
-        self.assertEqual(parameter.decrypted, "some-value")
+        self.assertEqual(parameter.decrypted_value, "some-value")
 
         param = copy.deepcopy(MINIMAL_PARAM)
         param["value"] = 42
         parameter = Parameter(param)
-        self.assertEqual(parameter.decrypted, "42")
+        self.assertEqual(parameter.decrypted_value, "42")
 
         param = copy.deepcopy(MINIMAL_PARAM)
         param["type"] = "SecureString"
         parameter = Parameter(param)
-        self.assertEqual(parameter.decrypted, "some-value")
+        self.assertEqual(parameter.decrypted_value, "some-value")
 
         param = copy.deepcopy(MINIMAL_PARAM)
         param["type"] = "securestring"
@@ -173,7 +173,7 @@ class TestParameter(unittest.TestCase):
         join = lambda name, value: f"{name}%{value}"
         psyml.models.decrypt_with_psyml = join
         parameter = Parameter(param)
-        self.assertEqual(parameter.decrypted, "some-name%some-value")
+        self.assertEqual(parameter.decrypted_value, "some-name%some-value")
 
     def test_encrypted(self):
         join = lambda name, value: f"{name}^{value}"

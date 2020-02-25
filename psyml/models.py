@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import shlex
 import sys
 
 import boto3
@@ -94,15 +95,44 @@ class PSyml:
             SSMParameterStoreItem(self, param).delete()
 
     def decrypt(self):
-        pass
+        data = {
+            "path": self.path,
+            "region": self.region,
+            "kmskey": self.kmskey,
+        }
 
-    def diff(self):
-        pass
+        if self.tags is not None:
+            data["tags"] = self.tags
+
+        data["parameters"] = [param.decrypted for param in self.parameters]
+        print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def refresh(self):
-        pass
+        if get_psyml_key_arn() == self.encrypted_with:
+            raise ValueError("PSYML key not refreshed, nothing to do")
+
+        data = {
+            "path": self.path,
+            "region": self.region,
+            "kmskey": self.kmskey,
+            "encrypted_with": get_psyml_key_arn(),
+        }
+
+        if self.tags is not None:
+            data["tags"] = self.tags
+
+        data["parameters"] = [param.re_encrypted for param in self.parameters]
+        print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def export(self):
+        for parameter in self.parameters:
+            print(parameter.export)
+
+    def diff(self):
+        # Find missing ones
+        # Find extra ones
+        # Find value changes
+        # Find tag changes
         pass
 
     def sync(self):
@@ -150,24 +180,59 @@ class Parameter:
 
     @property
     def encrypted(self):
-        data = {"name": self.name, "description": self.description}
-        if self.type_.islower():
-            data["value"] = self.value
-            data["type"] = self.type_
-        elif self.type_ == "String":
-            data["value"] = self.value
-            data["type"] = self.type_.lower()
-        else:
-            data["value"] = encrypt_with_psyml(self.name, self.value)
-            data["type"] = self.type_.lower()
-        return data
+        return {
+            "name": self.name,
+            "description": self.description,
+            "value": self.encrypted_value,
+            "type": self.type_.lower()
+        }
+
+    @property
+    def re_encrypted(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "value": self.re_encrypted_value,
+            "type": self.type_.lower()
+        }
 
     @property
     def decrypted(self):
+        types = {
+            "securestring": "SecureString",
+            "string": "String",
+        }
+        return {
+            "name": self.name,
+            "description": self.description,
+            "value": self.decrypted_value,
+            "type": types.get(self.type_, self.type_),
+        }
+
+    @property
+    def encrypted_value(self):
+        if self.type_ == "SecureString":
+            return encrypt_with_psyml(self.name, self.value)
+        else:
+            return self.value
+
+    @property
+    def re_encrypted_value(self):
+        if self.type_.lower() == "string":
+            return self.value
+        else:
+            return encrypt_with_psyml(self.name, self.decrypted_value)
+
+    @property
+    def decrypted_value(self):
         if self.type_ == "securestring":
             return decrypt_with_psyml(self.name, self.value)
         else:
             return self.value
+
+    @property
+    def export(self):
+        print(f"{self.name.replace('/', '_').upper()}={shlex.quote(self.decrypted_value)}")
 
 
 class SSMParameterStoreItem:
