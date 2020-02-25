@@ -23,8 +23,8 @@ tests () {
   export AWS_SECURITY_TOKEN='testing'
   export AWS_SESSION_TOKEN='testing'
   init
-  coverage run -m unittest tests/*.py
-  coverage report -m --omit='*venv*','*tests*'
+  coverage run -m unittest tests/*.py && \
+    coverage report -m --omit='*venv*','*tests*'
 }
 
 list () {

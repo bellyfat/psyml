@@ -46,7 +46,7 @@ parameters:
   - name: api_version
     description: The version of the API endpoint, not a secret.
     type: string
-    value: 2.0
+    value: 2
   - name: api_token
     description: The token used to communicate with the API endpoint, typically a secret
     type: securestring

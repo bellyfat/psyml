@@ -9,6 +9,7 @@ from .awsutils import decrypt_with_psyml, encrypt_with_psyml, get_psyml_key_arn
 
 class PSyml:
     """Represents a PSyml file."""
+
     def __init__(self, file):
         self.path = None
         self.region = None
@@ -22,7 +23,7 @@ class PSyml:
     def _validate(self, yaml_data):
         """Sanity check for the yaml."""
         data = yaml.safe_load(yaml_data)
-        assert isinstance(data, dict)
+        assert isinstance(data, dict), "Invalid yml file"
 
         mandantory = {
             "path": str,
@@ -33,11 +34,13 @@ class PSyml:
         optional = {"tags": dict, "encrypted_with": str}
         allowed = list(optional.keys()) + list(mandantory.keys())
         for key in data:
-            assert key in allowed
+            assert key in allowed, "Invalid key in yml file"
 
         for field in mandantory:
-            assert field in data
-            assert isinstance(data[field], mandantory[field])
+            assert field in data, "Missing mandantory field"
+            assert isinstance(
+                data[field], mandantory[field]
+            ), f"field `{field}` has invalid type"
         self.path = data["path"].rstrip("/") + "/"
         self.region = data["region"]
         self.kmskey = data["kmskey"]
@@ -45,7 +48,9 @@ class PSyml:
 
         for field in optional:
             if field in data:
-                assert isinstance(data[field], optional[field])
+                assert isinstance(
+                    data[field], optional[field]
+                ), f"field `{field}` has invalid type"
         self.tags = data.get("tags")
         self.encrypted_with = data.get("encrypted_with")
 
@@ -56,7 +61,9 @@ class PSyml:
     def aws_tags(self):
         if self.tags is None:
             return None
-        return [{'Key': key, 'Value': self.tags[key]} for key in self.tags]
+        return [
+            {"Key": key, "Value": self.tags[key]} for key in sorted(self.tags)
+        ]
 
     ###############
     # Commands
@@ -76,9 +83,7 @@ class PSyml:
             data["tags"] = self.tags
 
         data["parameters"] = [param.encrypted for param in self.parameters]
-        print(yaml.dump(
-            data, sort_keys=False, default_flow_style=False
-        ))
+        print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def save(self):
         for param in self.parameters:
@@ -105,7 +110,8 @@ class PSyml:
 
 
 class Parameter:
-    """Represents an entry in PSyml file."""
+    """Represents an parameter item in PSyml file."""
+
     def __init__(self, param):
         self.name = None
         self.description = None
@@ -116,21 +122,23 @@ class Parameter:
 
     def _validate(self, param):
         """Sanity check for the parameter store item in yaml."""
-        assert isinstance(param, dict)
+        assert isinstance(param, dict), "Invalid type for parameters"
 
         mandantory = ["name", "description", "type", "value"]
-        assert set(param.keys()) == set(mandantory)
+        assert set(param.keys()) == set(
+            mandantory
+        ), "Invalid/missing parameter field"
 
         for field in mandantory:
             if field != "value":
-                assert isinstance(param[field], str)
+                assert isinstance(param[field], str), "Invalid parameter type"
 
         assert param["type"] in [
             "String",
             "SecureString",
             "string",
             "securestring",
-        ]
+        ], "Invalid type in parameter"
 
         self.name = param["name"]
         self.description = param["description"]
@@ -190,9 +198,9 @@ class SSMParameterStoreItem:
         self.ssm.put_parameter(**kwargs)
         if self.psyml.aws_tags is not None:
             self.ssm.add_tags_to_resource(
-                ResourceType='Parameter',
+                ResourceType="Parameter",
                 ResourceId=self.path,
-                Tags=self.psyml.aws_tags
+                Tags=self.psyml.aws_tags,
             )
 
     def delete(self):
