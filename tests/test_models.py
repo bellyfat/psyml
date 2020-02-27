@@ -19,7 +19,7 @@ MINIMAL_PSYML = {
             "type": "String",
             "value": "some-value",
         }
-    ]
+    ],
 }
 MINIMAL_PARAM = {
     "name": "some-name",
@@ -28,14 +28,15 @@ MINIMAL_PARAM = {
     "value": "some-value",
 }
 
+
 class TestPSyml(unittest.TestCase):
     def test_minimal_yaml(self):
         fobj = io.StringIO(yaml.dump(MINIMAL_PSYML))
         psyml = PSyml(fobj)
         self.assertEqual(str(psyml), "<PSyml: some-path/>")
-        self.assertEqual(psyml.path, 'some-path/')
-        self.assertEqual(psyml.region, 'some-region')
-        self.assertEqual(psyml.kmskey, 'some-kmskey')
+        self.assertEqual(psyml.path, "some-path/")
+        self.assertEqual(psyml.region, "some-region")
+        self.assertEqual(psyml.kmskey, "some-kmskey")
         self.assertEqual(len(psyml.parameters), 1)
         self.assertEqual(psyml.tags, None)
         self.assertEqual(psyml.encrypted_with, None)
@@ -53,10 +54,8 @@ class TestPSyml(unittest.TestCase):
 
         psyml.tags = {"name": "abc", "order": "def"}
         self.assertEqual(
-            psyml.aws_tags, [
-                {"Key": "name", "Value": "abc"},
-                {"Key": "order", "Value": "def"},
-            ]
+            psyml.aws_tags,
+            [{"Key": "name", "Value": "abc"}, {"Key": "order", "Value": "def"}],
         )
 
     def test_validate_bad_yml(self):
@@ -65,7 +64,7 @@ class TestPSyml(unittest.TestCase):
 
         with self.assertRaises(AssertionError) as err:
             psyml = PSyml(fobj)
-        self.assertEqual(err.exception.args[0], 'Invalid yml file')
+        self.assertEqual(err.exception.args[0], "Invalid yml file")
 
     def test_validate_extra_field(self):
         with_extra_field = copy.deepcopy(MINIMAL_PSYML)
@@ -74,7 +73,7 @@ class TestPSyml(unittest.TestCase):
 
         with self.assertRaises(AssertionError) as err:
             psyml = PSyml(fobj)
-        self.assertEqual(err.exception.args[0], 'Invalid key in yml file')
+        self.assertEqual(err.exception.args[0], "Invalid key in yml file")
 
     def test_validate_missing_field(self):
         with_missing_field = copy.deepcopy(MINIMAL_PSYML)
@@ -83,7 +82,7 @@ class TestPSyml(unittest.TestCase):
 
         with self.assertRaises(AssertionError) as err:
             psyml = PSyml(fobj)
-        self.assertEqual(err.exception.args[0], 'Missing mandantory field')
+        self.assertEqual(err.exception.args[0], "Missing mandantory field")
 
     def test_validate_bad_field_type(self):
         bad_field_type = copy.deepcopy(MINIMAL_PSYML)
@@ -93,7 +92,7 @@ class TestPSyml(unittest.TestCase):
         with self.assertRaises(AssertionError) as err:
             psyml = PSyml(fobj)
         self.assertEqual(
-            err.exception.args[0], 'field `region` has invalid type'
+            err.exception.args[0], "field `region` has invalid type"
         )
 
         bad_field_type = copy.deepcopy(MINIMAL_PSYML)
@@ -101,9 +100,7 @@ class TestPSyml(unittest.TestCase):
         fobj = io.StringIO(yaml.dump(bad_field_type))
         with self.assertRaises(AssertionError) as err:
             psyml = PSyml(fobj)
-        self.assertEqual(
-            err.exception.args[0], 'field `tags` has invalid type'
-        )
+        self.assertEqual(err.exception.args[0], "field `tags` has invalid type")
 
 
 class TestParameter(unittest.TestCase):
@@ -112,6 +109,7 @@ class TestParameter(unittest.TestCase):
         de = lambda _, value: value.split("-")[1]
         en = lambda name, value: f"{name}^{value}"
         import psyml.models
+
         psyml.models.encrypt_with_psyml = en
         psyml.models.decrypt_with_psyml = de
 
@@ -126,33 +124,37 @@ class TestParameter(unittest.TestCase):
     def test_invalid_type(self):
         with self.assertRaises(AssertionError) as err:
             psyml = Parameter(["a", "b"])
-        self.assertEqual(err.exception.args[0], 'Invalid type for parameters')
+        self.assertEqual(err.exception.args[0], "Invalid type for parameters")
 
     def test_invalid_field(self):
         param = copy.deepcopy(MINIMAL_PARAM)
         del param["description"]
         with self.assertRaises(AssertionError) as err:
             Parameter(param)
-        self.assertEqual(err.exception.args[0], 'Invalid/missing parameter field')
+        self.assertEqual(
+            err.exception.args[0], "Invalid/missing parameter field"
+        )
         param["description"] = "some desc"
         parameter = Parameter(param)
-        self.assertEqual(parameter.description, 'some desc')
+        self.assertEqual(parameter.description, "some desc")
         param["extra"] = "foo"
         with self.assertRaises(AssertionError) as err:
             Parameter(param)
-        self.assertEqual(err.exception.args[0], 'Invalid/missing parameter field')
+        self.assertEqual(
+            err.exception.args[0], "Invalid/missing parameter field"
+        )
 
     def test_invalid_type(self):
         param = copy.deepcopy(MINIMAL_PARAM)
         param["description"] = 3
         with self.assertRaises(AssertionError) as err:
             Parameter(param)
-        self.assertEqual(err.exception.args[0], 'Invalid parameter type')
+        self.assertEqual(err.exception.args[0], "Invalid parameter type")
         param["description"] = "test"
         param["type"] = "invalid-type"
         with self.assertRaises(AssertionError) as err:
             Parameter(param)
-        self.assertEqual(err.exception.args[0], 'Invalid type in parameter')
+        self.assertEqual(err.exception.args[0], "Invalid type in parameter")
 
     def test_value_type_conversion(self):
         param = copy.deepcopy(MINIMAL_PARAM)
@@ -306,4 +308,12 @@ class TestParameter(unittest.TestCase):
         param = copy.deepcopy(MINIMAL_PARAM)
         parameter = Parameter(param)
 
-        self.assertEqual(parameter.export, "SOME_NAME=some-value")
+        self.assertEqual(parameter.export, "export SOME_NAME=some-value")
+
+        param = copy.deepcopy(MINIMAL_PARAM)
+        param["value"] = "test'value"
+        parameter = Parameter(param)
+
+        self.assertEqual(
+            parameter.export, """export SOME_NAME='test'"'"'value'"""
+        )

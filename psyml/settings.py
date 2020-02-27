@@ -3,8 +3,8 @@
 import os
 
 _defaults = {
-    'PSYML_KEY_REGION': 'ap-southeast-2',
-    'PSYML_KEY_ALIAS': 'alias/psyml',
+    "PSYML_KEY_REGION": "ap-southeast-2",
+    "PSYML_KEY_ALIAS": "alias/psyml",
 }
 
 for name in _defaults:

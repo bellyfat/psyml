@@ -95,11 +95,7 @@ class PSyml:
             SSMParameterStoreItem(self, param).delete()
 
     def decrypt(self):
-        data = {
-            "path": self.path,
-            "region": self.region,
-            "kmskey": self.kmskey,
-        }
+        data = {"path": self.path, "region": self.region, "kmskey": self.kmskey}
 
         if self.tags is not None:
             data["tags"] = self.tags
@@ -184,7 +180,7 @@ class Parameter:
             "name": self.name,
             "description": self.description,
             "value": self.encrypted_value,
-            "type": self.type_.lower()
+            "type": self.type_.lower(),
         }
 
     @property
@@ -193,15 +189,12 @@ class Parameter:
             "name": self.name,
             "description": self.description,
             "value": self.re_encrypted_value,
-            "type": self.type_.lower()
+            "type": self.type_.lower(),
         }
 
     @property
     def decrypted(self):
-        types = {
-            "securestring": "SecureString",
-            "string": "String",
-        }
+        types = {"securestring": "SecureString", "string": "String"}
         return {
             "name": self.name,
             "description": self.description,
@@ -232,7 +225,7 @@ class Parameter:
 
     @property
     def export(self):
-        return f"{self.name.replace('/', '_').replace('-', '_').upper()}={shlex.quote(self.decrypted_value)}"
+        return f"export {self.name.replace('/', '_').replace('-', '_').upper()}={shlex.quote(self.decrypted_value)}"
 
 
 class SSMParameterStoreItem:

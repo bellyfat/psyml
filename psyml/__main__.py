@@ -20,9 +20,7 @@ def parse_args():
     nuke = subparsers.add_parser(
         "nuke", help="remove all the parameter store entries"
     )
-    decrypt = subparsers.add_parser(
-        "decrypt", help="decrypt a yml file"
-    )
+    decrypt = subparsers.add_parser("decrypt", help="decrypt a yml file")
     diff = subparsers.add_parser(
         "diff", help="compare with items in parameter store"
     )
@@ -30,9 +28,7 @@ def parse_args():
         "refresh", help="compare with items in parameter store"
     )
     for command in [encrypt, save, nuke, decrypt, diff, refresh]:
-        command.add_argument(
-            "file", type=argparse.FileType(encoding="UTF-8")
-        )
+        command.add_argument("file", type=argparse.FileType(encoding="UTF-8"))
     return parser.parse_args()
 
 
