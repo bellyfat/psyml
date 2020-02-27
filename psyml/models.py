@@ -232,7 +232,7 @@ class Parameter:
 
     @property
     def export(self):
-        print(f"{self.name.replace('/', '_').upper()}={shlex.quote(self.decrypted_value)}")
+        return f"{self.name.replace('/', '_').replace('-', '_').upper()}={shlex.quote(self.decrypted_value)}"
 
 
 class SSMParameterStoreItem:
