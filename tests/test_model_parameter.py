@@ -213,6 +213,45 @@ class TestParameter(unittest.TestCase):
         self.assertEqual(parameter.decrypted_value, "some-value")
         self.assertEqual(parameter.re_encrypted_value, "some-name^some-value")
 
+    def test_re_encrypted(self):
+        param = copy.deepcopy(MINIMAL_PARAM)
+        parameter = Parameter(param)
+        self.assertEqual(
+            parameter.re_encrypted,
+            {
+                "name": "some-name",
+                "description": "some desc",
+                "type": "string",
+                "value": "some-value",
+            },
+        )
+
+        param = copy.deepcopy(MINIMAL_PARAM)
+        param["type"] = "securestring"
+        parameter = Parameter(param)
+        self.assertEqual(
+            parameter.re_encrypted,
+            {
+                "name": "some-name",
+                "description": "some desc",
+                "type": "securestring",
+                "value": "some-name^value",
+            },
+        )
+
+        param = copy.deepcopy(MINIMAL_PARAM)
+        param["type"] = "SecureString"
+        parameter = Parameter(param)
+        self.assertEqual(
+            parameter.re_encrypted,
+            {
+                "name": "some-name",
+                "description": "some desc",
+                "type": "securestring",
+                "value": "some-name^some-value",
+            },
+        )
+
     def test_export(self):
         param = copy.deepcopy(MINIMAL_PARAM)
         parameter = Parameter(param)

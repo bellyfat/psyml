@@ -129,10 +129,10 @@ class PSyml:
         # Find extra ones
         # Find value changes
         # Find tag changes
-        pass
+        raise NotImplemented
 
     def sync(self):
-        pass
+        raise NotImplemented
 
 
 class Parameter:
@@ -247,7 +247,7 @@ class SSMParameterStoreItem:
         kwargs = {
             "Name": self.path,
             "Description": self.data.description,
-            "Value": self.data.decrypted,
+            "Value": self.data.decrypted_value,
             "Type": self.data.type_,
             "Overwrite": True,
         }
