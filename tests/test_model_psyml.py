@@ -185,12 +185,13 @@ class TestPSymlCommand(unittest.TestCase):
         fobj = io.StringIO(yaml.dump(MINIMAL_PSYML))
         psyml = PSyml(fobj)
         parameter = Parameter(
-        {
-            "name": "some-name",
-            "description": "some-desc",
-            "type": "securestring",
-            "value": "some-value",
-        })
+            {
+                "name": "some-name",
+                "description": "some-desc",
+                "type": "securestring",
+                "value": "some-value",
+            }
+        )
         psyml.parameters.append(parameter)
         psyml.tags = {"tag-a": "value-a", "tag-b": "value-b"}
         with captured_output() as (out, err):
@@ -202,17 +203,14 @@ class TestPSymlCommand(unittest.TestCase):
             "  value: value\n"
             "  type: SecureString"
         )
-        extra_tags = (
-            "tags:\n"
-            "  tag-a: value-a\n"
-            "  tag-b: value-b"
-        )
+        extra_tags = "tags:\n" "  tag-a: value-a\n" "  tag-b: value-b"
         self.assertEqual(
             output.strip(),
             MINIMAL_DECRYPT.format(
-                key_arn=self.key_arn, extra_params=extra_yaml,
-                extra_tags=extra_tags
-            ).strip()
+                key_arn=self.key_arn,
+                extra_params=extra_yaml,
+                extra_tags=extra_tags,
+            ).strip(),
         )
 
     @mock_kms
