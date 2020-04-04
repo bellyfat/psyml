@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+"""Cli interface for psyml."""
 import argparse
 
 from .models import PSyml
 
 
 def parse_args():
+    """Parse commandline arguments."""
     parser = argparse.ArgumentParser(prog="psyml")
     subparsers = parser.add_subparsers(
         help="allowed subcommands", dest="command"
@@ -33,6 +35,7 @@ def parse_args():
 
 
 def main():
+    """Entrypoint for psyml cli."""
     args = parse_args()
     psyml = PSyml(args.file)
     getattr(psyml, args.command)()

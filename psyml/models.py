@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+"""Core models for psyml package."""
 import shlex
-import sys
 
 import boto3
 import yaml
@@ -60,6 +60,7 @@ class PSyml:
 
     @property
     def aws_tags(self):
+        """Return a list of AWS resouce Tags."""
         if self.tags is None:
             return None
         return [
@@ -71,13 +72,15 @@ class PSyml:
     ###############
     def encrypt(self):
         """Encrypt a yml file with default kms key"""
+        if self.encrypted_with:
+            encrypted_with = self.encrypted_with
+        else:
+            encrypted_with = get_psyml_key_arn()
         data = {
             "path": self.path,
             "region": self.region,
             "kmskey": self.kmskey,
-            "encrypted_with": self.encrypted_with
-            if self.encrypted_with
-            else get_psyml_key_arn(),
+            "encrypted_with": encrypted_with,
         }
 
         if self.tags is not None:
@@ -87,14 +90,17 @@ class PSyml:
         print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def save(self):
+        """Save items into Parameter store."""
         for param in self.parameters:
             SSMParameterStoreItem(self, param).save()
 
     def nuke(self):
+        """Save remove all Parameter store items."""
         for param in self.parameters:
             SSMParameterStoreItem(self, param).delete()
 
     def decrypt(self):
+        """Generate a yml file with all values decrypted."""
         data = {"path": self.path, "region": self.region, "kmskey": self.kmskey}
 
         if self.tags is not None:
@@ -104,6 +110,7 @@ class PSyml:
         print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def refresh(self):
+        """Re-encrypt all values previously encrypte using an old key."""
         if get_psyml_key_arn() == self.encrypted_with:
             raise ValueError("PSYML key not refreshed, nothing to do")
 
@@ -121,18 +128,24 @@ class PSyml:
         print(yaml.dump(data, sort_keys=False, default_flow_style=False))
 
     def export(self):
+        """
+        Print bash export lines for all values that is ready to be sourced.
+        """
         for parameter in self.parameters:
             print(parameter.export)
 
     def diff(self):
-        # Find missing ones
-        # Find extra ones
-        # Find value changes
-        # Find tag changes
-        raise NotImplemented
+        """
+        Find missing ones
+        Find extra ones
+        Find value changes
+        Find tag changes
+        """
+        raise NotImplementedError
 
     def sync(self):
-        raise NotImplemented
+        """To be implemented."""
+        raise NotImplementedError
 
 
 class Parameter:
@@ -176,24 +189,35 @@ class Parameter:
 
     @property
     def encrypted(self):
+        """Retuen a dict for this parameter with value encrypted."""
+        if self.type_ == "SecureString":
+            value = encrypt_with_psyml(self.name, self.value)
+        else:
+            value = self.value
         return {
             "name": self.name,
             "description": self.description,
-            "value": self.encrypted_value,
+            "value": value,
             "type": self.type_.lower(),
         }
 
     @property
     def re_encrypted(self):
+        """Retuen a dict for this parameter with value encrypted."""
+        if self.type_.lower() == "string":
+            value = self.value
+        else:
+            value = encrypt_with_psyml(self.name, self.decrypted_value)
         return {
             "name": self.name,
             "description": self.description,
-            "value": self.re_encrypted_value,
+            "value": value,
             "type": self.type_.lower(),
         }
 
     @property
     def decrypted(self):
+        """Retuen a dict for this parameter with value decrypted."""
         types = {"securestring": "SecureString", "string": "String"}
         return {
             "name": self.name,
@@ -203,29 +227,19 @@ class Parameter:
         }
 
     @property
-    def encrypted_value(self):
-        if self.type_ == "SecureString":
-            return encrypt_with_psyml(self.name, self.value)
-        else:
-            return self.value
-
-    @property
-    def re_encrypted_value(self):
-        if self.type_.lower() == "string":
-            return self.value
-        else:
-            return encrypt_with_psyml(self.name, self.decrypted_value)
-
-    @property
     def decrypted_value(self):
+        """Retuen decrypted value for this parameter."""
         if self.type_ == "securestring":
             return decrypt_with_psyml(self.name, self.value)
-        else:
-            return self.value
+        return self.value
 
     @property
     def export(self):
-        return f"export {self.name.replace('/', '_').replace('-', '_').upper()}={shlex.quote(self.decrypted_value)}"
+        """Return an export line for this value that can be source by bash."""
+        return (
+            f"export {self.name.replace('/', '_').replace('-', '_').upper()}"
+            f"={shlex.quote(self.decrypted_value)}"
+        )
 
 
 class SSMParameterStoreItem:
@@ -238,12 +252,15 @@ class SSMParameterStoreItem:
 
     @property
     def path(self):
+        """Return the ssm path of this item."""
         return self.psyml.path + self.data.name
 
     def __repr__(self):
+        """Return a nice expression for this item."""
         return f"<SSMParameterStoreItem: {self.path}>"
 
     def save(self):
+        """Save this item to parameter store."""
         kwargs = {
             "Name": self.path,
             "Description": self.data.description,
@@ -262,4 +279,5 @@ class SSMParameterStoreItem:
             )
 
     def delete(self):
+        """Delete this item from parameter store."""
         self.ssm.delete_parameter(Name=self.path)
