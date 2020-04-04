@@ -5,13 +5,16 @@ jobs:
   build:
     name: Lint/Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
       - name: Black
         uses: lgeiger/black-action@master
         with:
@@ -20,3 +23,22 @@ jobs:
         run: ./manage lint
       - name: Test
         run: ./manage tests
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/master' && github.repository == 'xiaket/psyml' 
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: pip install setuptools wheel twine
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_token_psyml }}
+        run: python setup.py sdist bdist_wheel && twine upload dist/*
