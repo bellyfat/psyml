@@ -1,6 +1,9 @@
 # psyml
 
-![build](https://github.com/xiaket/psyml/workflows/ci/badge.svg)
+![build](https://github.com/xiaket/psyml/workflows/build/badge.svg)
+![PyPI version](https://badge.fury.io/py/psyml.svg)
+![license](https://img.shields.io/pypi/l/psyml)
+![Coverage Status](https://coveralls.io/repos/github/xiaket/psyml/badge.svg?branch=master)
 
 ## The lifecycle of a yml file.
 
