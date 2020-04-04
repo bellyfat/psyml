@@ -1,5 +1,7 @@
 # psyml
 
+![build](https://github.com/xiaket/psyml/workflows/ci/badge.svg)
+
 ## The lifecycle of a yml file.
 
 The user will prepare a yml file that looks like this:
