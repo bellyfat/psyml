@@ -2,10 +2,10 @@
 from setuptools import setup
 
 
-VERSION = "1.0"
+VERSION = "0.1"
 
 
-with open('README.md') as fobj:
+with open("README.md") as fobj:
     long_description = fobj.read().strip()
 
 
@@ -18,14 +18,13 @@ if __name__ == "__main__":
         url="https://github.com/xiaket/psyml",
         description="Secrets manager using AWS Parameter Store",
         long_description=long_description,
-        py_modules=['psyml'],
-        entry_points={
-            'console_scripts': ['psyml = psyml:main']
-        },
+        long_description_content_type="text/markdown",
+        py_modules=["psyml"],
+        entry_points={"console_scripts": ["psyml = psyml:main"]},
         classifiers=[
-            'Development Status :: 4 - Beta',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: MIT License',
-            'Topic :: Utilities',
+            "Development Status :: 4 - Beta",
+            "Intended Audience :: Developers",
+            "License :: OSI Approved :: MIT License",
+            "Topic :: Utilities",
         ],
     )
