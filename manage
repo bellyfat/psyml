@@ -27,6 +27,11 @@ tests () {
     coverage report -m --omit='*venv*','*tests*'
 }
 
+lint () {
+  init
+  pylint psyml
+}
+
 list () {
   grep -E "()\ ?{$" "$0" | grep -v 'grep ' | awk '{print $1}' | sort
 }

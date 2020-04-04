@@ -1,4 +1,5 @@
-pyyaml
 boto3
-moto
 coverage
+moto
+pylint
+pyyaml
