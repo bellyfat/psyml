@@ -71,26 +71,6 @@ class TestParameter(unittest.TestCase):
         parameter = Parameter(param)
         self.assertEqual(parameter.value, "3")
 
-    def test_encrypted_value(self):
-        param = copy.deepcopy(MINIMAL_PARAM)
-        parameter = Parameter(param)
-        self.assertEqual(parameter.encrypted_value, "some-value")
-
-        param = copy.deepcopy(MINIMAL_PARAM)
-        param["value"] = 42
-        parameter = Parameter(param)
-        self.assertEqual(parameter.encrypted_value, "42")
-
-        param = copy.deepcopy(MINIMAL_PARAM)
-        param["type"] = "SecureString"
-        parameter = Parameter(param)
-        self.assertEqual(parameter.encrypted_value, "some-name^some-value")
-
-        param = copy.deepcopy(MINIMAL_PARAM)
-        param["type"] = "securestring"
-        parameter = Parameter(param)
-        self.assertEqual(parameter.encrypted_value, "some-value")
-
     def test_decrypted_value(self):
         param = copy.deepcopy(MINIMAL_PARAM)
         parameter = Parameter(param)
@@ -188,30 +168,6 @@ class TestParameter(unittest.TestCase):
                 "value": "some-value",
             },
         )
-
-    def test_re_encrypted_value(self):
-        param = copy.deepcopy(MINIMAL_PARAM)
-        parameter = Parameter(param)
-
-        self.assertEqual(parameter.encrypted_value, "some-value")
-        self.assertEqual(parameter.decrypted_value, "some-value")
-        self.assertEqual(parameter.re_encrypted_value, "some-value")
-
-        param = copy.deepcopy(MINIMAL_PARAM)
-        param["type"] = "securestring"
-        parameter = Parameter(param)
-
-        self.assertEqual(parameter.encrypted_value, "some-value")
-        self.assertEqual(parameter.decrypted_value, "value")
-        self.assertEqual(parameter.re_encrypted_value, "some-name^value")
-
-        param = copy.deepcopy(MINIMAL_PARAM)
-        param["type"] = "SecureString"
-        parameter = Parameter(param)
-
-        self.assertEqual(parameter.encrypted_value, "some-name^some-value")
-        self.assertEqual(parameter.decrypted_value, "some-value")
-        self.assertEqual(parameter.re_encrypted_value, "some-name^some-value")
 
     def test_re_encrypted(self):
         param = copy.deepcopy(MINIMAL_PARAM)
