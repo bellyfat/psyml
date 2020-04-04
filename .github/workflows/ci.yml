@@ -13,7 +13,9 @@ jobs:
         with:
           python-version: 3.8
       - name: Black
-        uses: jpetrucciani/black-check@master
+        uses: lgeiger/black-action@master
+        with:
+          args: ". --check -l 80"
       - name: Pylint
         run: ./manage lint
       - name: Test
