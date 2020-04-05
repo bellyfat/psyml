@@ -2,6 +2,7 @@
 
 ![build](https://github.com/xiaket/psyml/workflows/build/badge.svg)
 ![PyPI version](https://badge.fury.io/py/psyml.svg)
+![Coverage](https://coveralls.io/repos/github/xiaket/psyml/badge.svg)
 ![license](https://img.shields.io/pypi/l/psyml)
 
 ## The lifecycle of a yml file.

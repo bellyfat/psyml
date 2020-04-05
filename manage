@@ -5,6 +5,11 @@ set -o nounset
 set -o pipefail
 
 
+if [ -f .env ]
+then
+  source .env
+fi
+
 # define tasks here
 init (){
   if [ ! -d venv ]
@@ -23,8 +28,9 @@ tests () {
   export AWS_SECURITY_TOKEN='testing'
   export AWS_SESSION_TOKEN='testing'
   init
-  coverage run -m unittest tests/*.py && \
-    coverage report -m --omit='*venv*','*tests*'
+  coverage run --omit='venv/*','tests/*'  -m unittest tests/*.py && \
+    coverage report -m && \
+    coveralls
 }
 
 lint () {

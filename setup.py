@@ -2,7 +2,7 @@
 from setuptools import setup
 
 
-VERSION = "0.2"
+VERSION = "0.2.1"
 
 
 with open("README.md") as fobj:
