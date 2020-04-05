@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 
 
 with open("README.md") as fobj:
@@ -19,8 +19,9 @@ if __name__ == "__main__":
         description="Secrets manager using AWS Parameter Store",
         long_description=long_description,
         long_description_content_type="text/markdown",
+        packages=find_packages(),
         py_modules=["psyml"],
-        entry_points={"console_scripts": ["psyml = psyml:main"]},
+        entry_points={"console_scripts": ["psyml = psyml.__main__:main"]},
         classifiers=[
             "Development Status :: 4 - Beta",
             "Intended Audience :: Developers",
